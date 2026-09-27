@@ -6,7 +6,7 @@
 > **Companion repository for the research study:**  
 > *The Operative Matrix of Form: A Multi-dimensional Taxonomy of Materialization as Embodied Socio-Technical Extensions*  
 > **Author:** Ryan Pescatore Frisk  
-> **Contact:** ryan@non.academy  
+> For questions or bug reports regarding the matrix utilities, please open an issue in this repository.
 
 ---
 
