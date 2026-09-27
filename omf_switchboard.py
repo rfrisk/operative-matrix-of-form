@@ -302,7 +302,7 @@ let selectedCustomNodes = [];
 let currentActiveAssembly = 0;
 
 function cleanName(str) {{
-  return (str || "").toUpperCase().replace(/[\\s\\-_]/g, "");
+  return (str || "").toUpperCase().replace(/[\\s_\\-]/g, "");
 }}
 
 function getRowMeta(rowIdx) {{
