@@ -50,7 +50,7 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
   .container {{ display: flex; flex-direction: column; height: calc(100vh - 20px); gap: 10px; }}
   
   /* UPPER SECTION: Matrix grid */
-  .grid-viewport {{ flex: 1 1 auto; overflow: auto; border: 1px solid #282c34; background: #16181d; position: relative; border-radius: 4px; min-height: 220px; }}
+  .grid-viewport {{ flex: 1 1 auto; overflow: auto; border: 1px solid #282c34; background: #16181d; position: relative; border-radius: 4px; min-height: 220px; scroll-behavior: smooth; }}
   table {{ border-collapse: separate; border-spacing: 1px; background: #1e2228; table-layout: fixed; }}
   
   th {{ position: sticky; top: 0; background: #16181d; color: #8b949e; padding: 4px 2px; font-weight: 600; border-bottom: 2px solid #282c34; z-index: 50; font-size: 9px; vertical-align: bottom; }}
@@ -59,7 +59,7 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
   th.param-th div {{ writing-mode: vertical-rl; transform: rotate(180deg); text-align: left; max-height: 110px; overflow: hidden; text-overflow: ellipsis; }}
   
   /* Compact row & cell styling */
-  tr {{ height: 15px; max-height: 15px; }}
+  tr {{ height: 15px; max-height: 15px; transition: background 0.15s ease; }}
   tr.selected-row td.meta-td {{ background: #1f6feb !important; color: #fff !important; font-weight: bold; }}
   tr.selected-row td.param-td.active-val {{ font-size: 11px; font-weight: bold; color: #79c0ff; }}
   tr:hover td.meta-td {{ background: #262c36; color: #f0f6fc; }}
@@ -70,26 +70,33 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
   td.param-td.active-val {{ color: #adb5bd; background: #181b20; }}
   td.param-td:hover {{ background: #262c36; color: #fff; }}
   
-  /* 1. PRIMARY NARRATIVE OVERLAY: Big, Vibrant, 18px Pulsing Dot */
+  /* 1. PRIMARY SEQUENCED NARRATIVE OVERLAY: Big, Vibrant, Pulsing Dot with Sequence Step */
   .node-overlay-primary {{
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
     border-radius: 50%;
     pointer-events: none;
     z-index: 60;
     box-shadow: 0 0 10px currentColor;
     opacity: 0.95;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    color: #101216;
     animation: primaryPulse 1.4s infinite ease-in-out;
   }}
   @keyframes primaryPulse {{
-    0% {{ transform: translate(-50%, -50%) scale(0.9); opacity: 0.85; }}
-    50% {{ transform: translate(-50%, -50%) scale(1.35); opacity: 1; }}
-    100% {{ transform: translate(-50%, -50%) scale(0.9); opacity: 0.85; }}
+    0% {{ transform: translate(-50%, -50%) scale(0.92); opacity: 0.9; }}
+    50% {{ transform: translate(-50%, -50%) scale(1.3); opacity: 1; }}
+    100% {{ transform: translate(-50%, -50%) scale(0.92); opacity: 0.9; }}
   }}
+  
   /* 2. INCIDENTAL CORPUS OVERLAY: 9px Muted Dot */
   .node-overlay-incidental {{
     position: absolute;
@@ -104,6 +111,7 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
     opacity: 0.65;
     box-shadow: 0 0 3px rgba(0,0,0,0.8);
   }}
+  
   /* 3. FREE CUSTOM PIN: 16px Electric Cyan */
   .node-overlay-custom {{
     position: absolute;
@@ -126,7 +134,7 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
     100% {{ transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }}
   }}
   
-  /* Instant Cursor Tooltip */
+  /* Floating Cursor Tooltip */
   #cursorTooltip {{
     position: fixed;
     display: none;
@@ -143,40 +151,38 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
     transform: translate(12px, 12px);
   }}
   
-  /* LOWER SECTION */
-/* 1. Give the control deck flexible breathing room */
+  /* LOWER SECTION: Control Deck */
   .control-deck {{ 
     flex: 0 0 auto; 
     display: grid; 
-    grid-template-columns: 280px 1fr; 
+    grid-template-columns: 290px 1fr; 
     gap: 12px; 
     background: #16181d; 
     border: 1px solid #282c34; 
     border-radius: 4px; 
-    padding: 10px 12px; 
-    min-height: 260px; 
+    padding: 10px 14px; 
+    min-height: 275px; 
+    max-height: 315px; 
   }}
   
-  /* 2. Remove overflow scrolling completely and space buttons evenly */
   .btn-group {{ 
     display: flex; 
     flex-direction: column; 
     justify-content: space-between; 
-    gap: 2px; 
+    gap: 3px; 
     overflow: visible; 
     height: 100%; 
   }}
-
-  /* 3. Tighten padding and font slightly so all 9 items fit naturally */
+  
   .deck-btn {{ 
     background: #1e2228; 
     color: #c9d1d9; 
     border: 1px solid #282c34; 
     border-radius: 3px; 
-    padding: 3.5px 7px; 
+    padding: 4px 8px; 
     text-align: left; 
     cursor: pointer; 
-    font-size: 10px; 
+    font-size: 10.5px; 
     line-height: 1.25; 
     font-weight: 500; 
     transition: all 0.15s; 
@@ -191,25 +197,47 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
     background: #2b181c; 
     border-color: #f85149; 
     color: #ff7b72; 
-    margin-top: 2px; 
+    margin-top: 3px; 
     text-align: center; 
     font-weight: 600; 
   }}
   .deck-btn.clear-btn:hover {{ background: #da3633; color: #fff; }}
   
-  .readout-panel {{ background: #101216; border: 1px solid #282c34; border-radius: 3px; padding: 12px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; }}
+  .readout-panel {{ 
+    background: #101216; 
+    border: 1px solid #282c34; 
+    border-radius: 3px; 
+    padding: 10px 14px; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 7px; 
+  }}
   
-  /* Inspection & Status Banner */
-  .inspection-banner {{ background: #1a202c; border: 1px solid #3182ce; border-radius: 4px; padding: 6px 10px; font-size: 11.5px; color: #e2e8f0; display: flex; align-items: center; gap: 10px; min-height: 28px; }}
-  .source-inspect {{ font-size: 11.5px; color: #63b3ed; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }}
-  .highlight-badge {{ font-size: 11px; color: #ecc94b; background: rgba(236, 201, 75, 0.15); padding: 2px 7px; border-radius: 3px; border: 1px solid rgba(236, 201, 75, 0.35); font-weight: 600; white-space: nowrap; }}
+  /* Stacked Chain of Inspected Sources */
+  .inspection-stack {{ display: flex; flex-direction: column; gap: 4px; }}
+  .inspection-banner {{ 
+    background: #1a202c; 
+    border: 1px solid #3182ce; 
+    border-radius: 4px; 
+    padding: 4px 8px; 
+    font-size: 11px; 
+    color: #e2e8f0; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    gap: 8px; 
+  }}
+  .source-inspect {{ font-size: 11px; color: #63b3ed; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+  .step-badge {{ background: #3182ce; color: #fff; font-size: 9.5px; font-weight: bold; padding: 1px 6px; border-radius: 3px; }}
+  .highlight-badge {{ font-size: 10px; color: #ecc94b; background: rgba(236, 201, 75, 0.15); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(236, 201, 75, 0.35); font-weight: 600; white-space: nowrap; }}
   
-  .readout-title {{ font-size: 13.5px; font-weight: bold; color: #58a6ff; margin-top: 2px; }}
-  .readout-lineage {{ font-size: 12px; font-weight: 600; color: #e6edf3; background: #16181d; border-left: 3px solid #58a6ff; padding: 4px 8px; border-radius: 2px; }}
-  .readout-path {{ font-size: 11px; color: #79c0ff; font-family: monospace; }}
-  .diagnostic-body {{ font-size: 12px; line-height: 1.6; color: #d0d7de; }}
-  .coord-tags {{ margin-top: 2px; display: flex; flex-wrap: wrap; gap: 4px; }}
-  .coord-pill {{ display: inline-block; background: #1e2228; border: 1px solid #30363d; color: #79c0ff; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 10.5px; }}
+  .readout-title {{ font-size: 13px; font-weight: bold; color: #58a6ff; margin-top: 1px; }}
+  .readout-lineage {{ font-size: 11.5px; font-weight: 600; color: #e6edf3; background: #16181d; border-left: 3px solid #58a6ff; padding: 4px 8px; border-radius: 2px; }}
+  .readout-path {{ font-size: 10.5px; color: #79c0ff; font-family: monospace; }}
+  .diagnostic-body {{ font-size: 11.5px; line-height: 1.5; color: #d0d7de; }}
+  .coord-tags {{ display: flex; flex-wrap: wrap; gap: 4px; }}
+  .coord-pill {{ display: inline-block; background: #1e2228; border: 1px solid #30363d; color: #79c0ff; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 10px; }}
   
   .custom-chain-box {{ margin-top: 4px; padding: 6px 8px; background: #161b22; border: 1px dashed #388bfd; border-radius: 3px; font-size: 11px; color: #58a6ff; }}
   .custom-chain-list {{ display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }}
@@ -258,7 +286,7 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
   <!-- LOWER SECTION: Interactive Diagnostics -->
   <div class="control-deck">
     <div class="btn-group">
-      <div style="font-weight:bold; color:#8b949e; margin-bottom:4px; font-size:10.5px; text-transform:uppercase;">Diagnostic Assemblies & Trajectories:</div>
+      <div style="font-weight:bold; color:#8b949e; margin-bottom:2px; font-size:10px; text-transform:uppercase;">Diagnostic Assemblies & Trajectories:</div>
       <button class="deck-btn active" id="btn-0" onclick="activateTrace(0)">Assembly 1: Edge Segmentation</button>
       <button class="deck-btn" id="btn-1" onclick="activateTrace(1)">Assembly 2: Vernacular Flattening</button>
       <button class="deck-btn" id="btn-2" onclick="activateTrace(2)">Assembly 3: Interface Ideology</button>
@@ -270,10 +298,9 @@ def build_switchboard(csv_path="omf_benchmark_corpus.csv", output_html="omf_swit
       <button class="deck-btn clear-btn" onclick="clearCustomTrace()">Clear Custom Selection</button>
     </div>
     <div class="readout-panel">
-      <div class="inspection-banner">
-        <div class="source-inspect" id="bannerSource">Selected: Row 0</div>
-        <div class="highlight-badge" id="bannerBadge">0 Exemplar | 0 Corpus Nodes</div>
-      </div>
+      <!-- Sequenced inspection banners stack here -->
+      <div class="inspection-stack" id="bannerStack"></div>
+      
       <div class="readout-title" id="rTitle">Assembly 1: Physiological Edge Segmentation & Augmented Reality Filtering</div>
       <div class="readout-lineage" id="rLineage">Chevreul (1839) → Wertheimer (1912) → Real-Time Semantic Edge Segmentation.</div>
       <div class="readout-path" id="rPath">Active Coordinates: Band 3 (E-Tone), Band 5 (G-Figure_Ground), Band 8 (P-Optic, M-Media).</div>
@@ -294,7 +321,7 @@ const profiles = [
     lineage: "Chevreul (1839) → Wertheimer (1912) → Real-Time Semantic Edge Segmentation.",
     path: "Active Coordinates: Band 3 (E-Tone), Band 5 (G-Figure_Ground), Band 8 (P-Optic, M-Media).",
     coords: ["E-Tone", "G-Figure_Ground", "P-Optic", "M-Media"],
-    authorKeywords: ["Chevreul", "Wertheimer", "Sobel", "Canny", "OpenCV"],
+    sequenceAuthors: ["Chevreul", "Wertheimer"],
     color: "#ff6b6b",
     desc: "Isolates how contemporary computer vision segmentation algorithms mechanize 19th-century retinal contrast theories, converting simultaneous contrast into programmatic boundary-detection routines."
   }},
@@ -303,7 +330,7 @@ const profiles = [
     lineage: "Polykleitos (c. 440 BCE) / Alberti (1435) vs. Vernacular Signage Traditions → Generative Diffusion Models.",
     path: "Active Coordinates: Band 2 (Dc, I), Band 4 (P-Balance), Band 6 (C-Symmetry), Band 8 (M-AI_Network_Bias vs. M-Vernacular_Cosmo).",
     coords: ["Dc", "I", "P-Balance", "C-Symmetry", "M-AI_Network_Bias", "M-Vernacular_Cosmo"],
-    authorKeywords: ["Polykleitos", "Alberti", "Midjourney", "Diffusion", "Stability"],
+    sequenceAuthors: ["Polykleitos", "Alberti"],
     color: "#339af0",
     desc: "Audits how generative text-to-image synthesis models enforce historical Western geometric defaults while suppressing irregular, situated visual traditions as unoptimized noise."
   }},
@@ -312,7 +339,7 @@ const profiles = [
     lineage: "Barthes (1957) → Kress and van Leeuwen (1996) → Apple Computer Inc. (1991).",
     path: "Active Coordinates: Band 4 (P-Emphasis), Band 6 (R-Frame, C-Hierarchy), Band 7 (I-Nesting), Band 8 (S-Myth, M-Power).",
     coords: ["P-Emphasis", "R-Frame", "C-Hierarchy", "I-Nesting", "S-Myth", "M-Power"],
-    authorKeywords: ["Barthes", "Kress", "Leeuwen", "Apple"],
+    sequenceAuthors: ["Barthes", "Kress", "Apple"],
     color: "#51cf66",
     desc: "Maps how institutional authority and social power are naturalized within interactive software interfaces, translating compositional framing into nested menus and modal alerts."
   }},
@@ -321,7 +348,7 @@ const profiles = [
     lineage: "Vischer (1873) / Hildebrand (1893) → Schlemmer and Bauhaus (1925) → Touchscreen Interfaces (Apple Computer Inc., 1991).",
     path: "Active Coordinates: Band 4 (P-Scale), Band 6 (R-Dynamics), Band 7 (I-Touching), Band 8 (P-Em, M-Use).",
     coords: ["P-Scale", "R-Dynamics", "I-Touching", "P-Em", "M-Use"],
-    authorKeywords: ["Vischer", "Hildebrand", "Schlemmer", "Apple"],
+    sequenceAuthors: ["Vischer", "Hildebrand", "Schlemmer", "Apple"],
     color: "#fcc419",
     desc: "Traces how bodily empathy and muscular equilibrium are mechanized into digital interaction ergonomics, abstracting physical resistance into pre-scripted UI affordances."
   }},
@@ -330,7 +357,7 @@ const profiles = [
     lineage: "Villard de Honnecourt (c. 1230) → Dürer (1525) → Müller-Brockmann (1981) → Apple Computer Inc. (1991) → Latent Diffusion Tensors.",
     path: "Active Matrix Path: Band 3 (E-Line), Band 4 (P-Unity), Band 6 (C-Modular, C-Grid), Band 8 (M-Media, M-AI_Network_Bias).",
     coords: ["E-Line", "P-Unity", "C-Modular", "C-Grid", "M-Media", "M-AI_Network_Bias"],
-    authorKeywords: ["Villard", "Honnecourt", "Dürer", "Müller-Brockmann", "Apple"],
+    sequenceAuthors: ["Villard", "Dürer", "Müller-Brockmann", "Apple"],
     color: "#ff922b",
     desc: "Tracks the historical migration of the orthogonal grid from medieval stone carving guides to planar drafting nets, Swiss typography, UI containers, and mathematical diffusion priors."
   }},
@@ -339,7 +366,7 @@ const profiles = [
     lineage: "Alberti (1435) → Ruskin (1849) → Kress and van Leeuwen (1996) → Responsive Web Viewports / Computer Vision Bounding Boxes.",
     path: "Active Matrix Path: Band 3 (E-Space), Band 6 (R-Frame, C-Hierarchy), Band 7 (I-Nesting), Band 8 (S-Myth, M-Power).",
     coords: ["E-Space", "R-Frame", "C-Hierarchy", "I-Nesting", "S-Myth", "M-Power"],
-    authorKeywords: ["Alberti", "Ruskin", "Kress", "Leeuwen", "Farocki"],
+    sequenceAuthors: ["Alberti", "Ruskin", "Kress"],
     color: "#cc5de8",
     desc: "Tracks spatial framing from Alberti’s open window to industrial mouldings, ideological layout margins, responsive mobile containers, and real-time surveillance bounding boxes."
   }},
@@ -348,7 +375,7 @@ const profiles = [
     lineage: "Chevreul (1839) → Helmholtz (1886) → Wertheimer (1912) → OpenCV Edge Segmentation & Neural Weight Optimization.",
     path: "Active Matrix Path: Band 3 (E-Color, E-Tone), Band 4 (P-Contrast), Band 5 (G-Figure_Ground), Band 8 (P-Optic, M-Media).",
     coords: ["E-Color", "E-Tone", "P-Contrast", "G-Figure_Ground", "P-Optic", "M-Media"],
-    authorKeywords: ["Chevreul", "Helmholtz", "Wertheimer"],
+    sequenceAuthors: ["Chevreul", "Helmholtz", "Wertheimer"],
     color: "#20c997",
     desc: "Traces the scientific rationalization of visual contrast from industrial Gobelins textile dye works through psychophysics to real-time machine vision edge filters and diffusion loss functions."
   }}
@@ -358,6 +385,7 @@ const recordsData = {json.dumps(records)};
 const tooltip = document.getElementById("cursorTooltip");
 let selectedCustomNodes = [];
 let currentActiveAssembly = 0;
+let sequenceTimers = [];
 
 function cleanName(str) {{
   return (str || "").toUpperCase().replace(/[\\s_\\-]/g, "");
@@ -387,10 +415,6 @@ function getRowMeta(rowIdx) {{
 function inspectMeta(rowIdx, field, val, e) {{
   const m = getRowMeta(rowIdx);
   const dateStr = m.date ? ` (${{m.date}})` : "";
-  const titleStr = m.title ? ` — "${{m.title}}"` : "";
-  const phaseStr = m.phase ? ` [Phase ${{m.phase}}]` : "";
-  document.getElementById("bannerSource").innerText = `Row ${{rowIdx}}: ${{m.author}}${{dateStr}}${{titleStr}}${{phaseStr}}`;
-  document.getElementById("bannerBadge").innerText = `${{field}}: "${{val}}"`;
   tooltip.style.display = "block";
   tooltip.innerHTML = `<strong>${{m.author}}${{dateStr}}</strong><br>${{m.title}}<br><span style="color:#58a6ff;">${{field}}: ${{val}}</span>`;
   moveTip(e);
@@ -400,9 +424,6 @@ function inspectNode(rowIdx, colName, val, e) {{
   const m = getRowMeta(rowIdx);
   const cleanVal = (val || "").trim() || "—";
   const dateStr = m.date ? ` (${{m.date}})` : "";
-  const titleStr = m.title ? ` — "${{m.title}}"` : "";
-  document.getElementById("bannerSource").innerText = `Row ${{rowIdx}}: ${{m.author}}${{dateStr}}${{titleStr}}`;
-  document.getElementById("bannerBadge").innerText = `${{colName}}: "${{cleanVal}}"`;
   tooltip.style.display = "block";
   tooltip.innerHTML = `<strong>${{m.author}}${{dateStr}}</strong><br>${{m.title}}<br><span style="color:#79c0ff;">${{colName}}: <code>${{cleanVal}}</code></span>`;
   moveTip(e);
@@ -419,19 +440,15 @@ function hideTip() {{
 }}
 
 function highlightRowUI(rowIdx) {{
-  document.querySelectorAll("tr").forEach(r => r.classList.remove("selected-row"));
   const tr = document.querySelector(`tr[data-row='${{rowIdx}}']`);
   if (tr) tr.classList.add("selected-row");
-  const m = getRowMeta(rowIdx);
-  const dateStr = m.date ? ` (${{m.date}})` : "";
-  const titleStr = m.title ? ` — "${{m.title}}"` : "";
-  document.getElementById("bannerSource").innerText = `Row ${{rowIdx}}: ${{m.author}}${{dateStr}}${{titleStr}}`;
 }}
 
 function handleRowClick(rowIdx, e) {{
   if (currentActiveAssembly !== 7) {{
     activateTrace(7);
   }}
+  document.querySelectorAll("tr").forEach(r => r.classList.remove("selected-row"));
   highlightRowUI(rowIdx);
 }}
 
@@ -473,13 +490,17 @@ function handleNodeClick(rowIdx, colName, val, e) {{
 function updateCustomReadout() {{
   const container = document.getElementById("customChainContainer");
   const list = document.getElementById("customChainList");
+  const stack = document.getElementById("bannerStack");
+  
+  if (currentActiveAssembly !== 7) return;
+
   if (selectedCustomNodes.length === 0) {{
     container.style.display = "none";
-    document.getElementById("bannerBadge").innerText = "Free Audit Ready";
+    stack.innerHTML = `<div class="inspection-banner"><div class="source-inspect">Free Exploration Mode Ready — Click cells to trace custom trajectories</div></div>`;
     return;
   }}
   container.style.display = "block";
-  document.getElementById("bannerBadge").innerText = `${{selectedCustomNodes.length}} Custom Nodes Selected`;
+  stack.innerHTML = `<div class="inspection-banner"><div class="source-inspect">Custom Selection: ${{selectedCustomNodes.length}} active nodes</div></div>`;
   list.innerHTML = selectedCustomNodes.map(n => 
     `<span class="custom-pill">Row ${{n.row}} (${{n.author}} ${{n.date ? "'" + n.date.toString().slice(-2) : ""}}) → ${{n.col}}</span>`
   ).join("");
@@ -488,17 +509,28 @@ function updateCustomReadout() {{
 function clearCustomTrace() {{
   selectedCustomNodes = [];
   document.querySelectorAll(".node-overlay-custom").forEach(m => m.remove());
-  updateCustomReadout();
+  if (currentActiveAssembly === 7) updateCustomReadout();
+}}
+
+function clearTimers() {{
+  sequenceTimers.forEach(t => clearTimeout(t));
+  sequenceTimers = [];
 }}
 
 function activateTrace(idx) {{
   hideTip();
+  clearTimers();
   currentActiveAssembly = idx;
   
   const btns = document.querySelectorAll(".deck-btn");
   btns.forEach((b, i) => b.classList.toggle("active", i === idx));
   
   document.querySelectorAll(".node-overlay-primary, .node-overlay-incidental").forEach(m => m.remove());
+  document.querySelectorAll("tr").forEach(r => r.classList.remove("selected-row"));
+  
+  const stack = document.getElementById("bannerStack");
+  stack.innerHTML = "";
+  
   if (idx === 7) {{
     document.getElementById("rTitle").innerText = "Free Matrix Exploration Mode";
     document.getElementById("rLineage").innerText = "Preset lineages cleared. Click on any row or parameter to create a custom trajectory.";
@@ -508,6 +540,7 @@ function activateTrace(idx) {{
     updateCustomReadout();
     return;
   }}
+  
   clearCustomTrace();
   const p = profiles[idx];
   document.getElementById("rTitle").innerText = p.title;
@@ -516,70 +549,93 @@ function activateTrace(idx) {{
   document.getElementById("rCoords").innerHTML = p.coords.map(c => `<span class="coord-pill" style="color:${{p.color}}">${{c}}</span>`).join("");
   document.getElementById("rBody").innerText = p.desc;
 
-  const exemplarRowIndices = [];
-  recordsData.forEach((row, rIdx) => {{
-    const authorVal = (row.Author || row.author || "").toLowerCase();
-    const titleVal = (row.Title || row.title || "").toLowerCase();
-    if (p.authorKeywords.some(kw => authorVal.includes(kw.toLowerCase()) || titleVal.includes(kw.toLowerCase()))) {{
-      exemplarRowIndices.push(rIdx);
+  // 1. Identify exactly ordered exemplars matching the trajectory's lineage
+  const orderedExemplars = [];
+  p.sequenceAuthors.forEach(authKey => {{
+    const cleanKey = authKey.toLowerCase();
+    const matchIdx = recordsData.findIndex(row => {{
+      return Object.values(row).some(val => String(val).toLowerCase().includes(cleanKey));
+    }});
+    if (matchIdx >= 0 && !orderedExemplars.includes(matchIdx)) {{
+      orderedExemplars.push(matchIdx);
     }}
   }});
 
-  if (exemplarRowIndices.length === 0) {{
-    const fallback = [idx * 15, idx * 15 + 1, idx * 15 + 2];
-    fallback.forEach(fr => {{ if (fr < recordsData.length) exemplarRowIndices.push(fr); }});
-  }}
-
+  // 2. Mark incidental corpus nodes immediately (muted)
   const targetCleans = p.coords.map(cleanName);
-  let primaryCount = 0;
   let incidentalCount = 0;
-
+  
   document.querySelectorAll("td.param-td.active-val").forEach(td => {{
     const colClean = td.getAttribute("data-col-clean");
     const isCoordMatch = targetCleans.some(tc => colClean === tc || colClean.includes(tc) || tc.includes(colClean));
-    
     if (isCoordMatch) {{
       const rIdx = parseInt(td.getAttribute("data-row"), 10);
-      const isExemplar = exemplarRowIndices.includes(rIdx);
-      const marker = document.createElement("div");
-      if (isExemplar) {{
-        marker.className = "node-overlay-primary";
-        marker.style.color = p.color;
-        marker.style.backgroundColor = p.color;
-        primaryCount++;
-      }} else {{
+      if (!orderedExemplars.includes(rIdx)) {{
+        const marker = document.createElement("div");
         marker.className = "node-overlay-incidental";
         marker.style.backgroundColor = p.color;
+        td.appendChild(marker);
         incidentalCount++;
       }}
-      td.appendChild(marker);
     }}
   }});
 
-  document.getElementById("bannerBadge").innerText = `${{primaryCount}} Exemplar | ${{incidentalCount}} Corpus Nodes`;
+  // 3. Sequentially animate in each lineage exemplar node and follow viewport
+  const viewport = document.getElementById("viewport");
 
-  if (exemplarRowIndices.length > 0) {{
-    highlightRowUI(exemplarRowIndices[0]);
-  }}
-
-  setTimeout(() => {{
-    const firstPrimary = document.querySelector(".node-overlay-primary");
-    const viewport = document.getElementById("viewport");
-    if (firstPrimary && viewport) {{
-      const cell = firstPrimary.closest("td");
-      if (cell) {{
-        const cellRect = cell.getBoundingClientRect();
+  orderedExemplars.forEach((rowIdx, stepIdx) => {{
+    const t = setTimeout(() => {{
+      highlightRowUI(rowIdx);
+      const m = getRowMeta(rowIdx);
+      const dateStr = m.date ? ` (${{m.date}})` : "";
+      const stepNum = stepIdx + 1;
+      
+      // Append card to the stacked inspection banner
+      const bannerCard = document.createElement("div");
+      bannerCard.className = "inspection-banner";
+      bannerCard.innerHTML = `
+        <div class="source-inspect">
+          <span class="step-badge">${{stepNum}}</span>
+          Row ${{rowIdx}}: <strong>${{m.author}}</strong>${{dateStr}} — "${{m.title}}"
+        </div>
+        <div class="highlight-badge">Node ${{stepNum}} of ${{orderedExemplars.length}}</div>
+      `;
+      stack.appendChild(bannerCard);
+      
+      // Add numeric highlighted badges to the parameter cells of this row
+      document.querySelectorAll(`tr[data-row='${{rowIdx}}'] td.param-td.active-val`).forEach(td => {{
+        const colClean = td.getAttribute("data-col-clean");
+        const isCoordMatch = targetCleans.some(tc => colClean === tc || colClean.includes(tc) || tc.includes(colClean));
+        if (isCoordMatch) {{
+          const marker = document.createElement("div");
+          marker.className = "node-overlay-primary";
+          marker.style.backgroundColor = p.color;
+          marker.innerText = stepNum;
+          td.appendChild(marker);
+        }}
+      }});
+      
+      // Intelligent Auto-Scroll: Follow each node if it falls outside the visible matrix window
+      const targetRow = document.querySelector(`tr[data-row='${{rowIdx}}']`);
+      if (targetRow && viewport) {{
+        const rowRect = targetRow.getBoundingClientRect();
         const vRect = viewport.getBoundingClientRect();
         
-        // Retain horizontal scroll position (preserves fixed metadata alignment)
-        viewport.scrollTo({{
-          left: viewport.scrollLeft,
-          top: viewport.scrollTop + (cellRect.top - vRect.top) - (vRect.height / 2) + (cellRect.height / 2),
-          behavior: "smooth"
-        }});
+        // Check if row is cut off or beyond visible top/bottom bounds (with 40px buffer)
+        const isOutOfView = (rowRect.top < vRect.top + 40) || (rowRect.bottom > vRect.bottom - 40);
+        
+        if (isOutOfView) {{
+          viewport.scrollTo({{
+            left: viewport.scrollLeft, // Preserves horizontal alignment
+            top: viewport.scrollTop + (rowRect.top - vRect.top) - (vRect.height / 2) + (rowRect.height / 2),
+            behavior: "smooth"
+          }});
+        }}
       }}
-    }}
-  }}, 60);
+    }}, stepIdx * 800); // 800ms stagger between each node step
+    
+    sequenceTimers.push(t);
+  }});
 }}
 
 window.addEventListener("DOMContentLoaded", () => {{
