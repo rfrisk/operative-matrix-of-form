@@ -20,12 +20,12 @@ BANDS = {
 }
 
 PHASES = {
-    "1": "Classical & Canonical Form (c. 450 BCE - 1550)",
-    "2": "Empirical Optics & Physiological Foundations (1600 - 1890)",
-    "3": "Psychophysical & Phenomenological Modernism (1890 - 1935)",
-    "4": "Structural Semiotics & Post-War Systematization (1945 - 1975)",
-    "5": "Digital Standardization & GUI Enclosure (1980 - 2005)",
-    "6": "Algorithmic Aggregation & Generative Latent Form (2010 - Present)"
+    "1": "Classical Era to c. 1400 (Embodied Tectonics & Sacred Proportions)",
+    "2": "c. 1400–1750 (Orthogonal Projection, Perspective & Architectural Orders)",
+    "3": "c. 1750–1870s (Industrialization & Mechanical Standardization)",
+    "4": "1873–1954 (Psychophysical Optics, Gestalt & Bauhaus Pedagogy)",
+    "5": "1955–2000 (Swiss Systems, GUI Hardware Defaults & Postmodern Critique)",
+    "6": "2000–Present (Algorithmic Culture, Real-Time Vision & Latent Enclosures)"
 }
 
 METADATA_IGNORE = {
@@ -38,16 +38,15 @@ OMF_PREFIXES = ("E-", "P-", "G-", "C-", "R-", "I-", "M-", "S-", "D-", "DC", "DT"
 def infer_phase_from_date(val):
     try:
         y = float(str(val).split("-")[0].replace("c.", "").strip())
-        if y < 1560: return "1"
-        elif y < 1890: return "2"
-        elif y < 1940: return "3"
-        elif y < 1978: return "4"
-        elif y < 2008: return "5"
+        if y < 1400: return "1"
+        elif y < 1750: return "2"
+        elif y < 1873: return "3"
+        elif y < 1955: return "4"
+        elif y < 2000: return "5"
         else: return "6"
     except:
         return "Unknown"
-
-
+        
 def generate_html_report(df, analytical_cols, phase_counts, band_clusters, output_filename="omf_audit_report.html"):
     phase_rows = "".join(
         f"<tr><td><strong>Phase {p}</strong></td><td>{PHASES.get(str(p).strip(), 'Historical Period')}</td><td>{cnt}</td></tr>"
